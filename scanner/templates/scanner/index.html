@@ -3,10 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NETGUARD — Security Operations Console</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <title>NetGuard — Network Monitor</title>
   <link rel="stylesheet" href="/static/scanner/style.css">
 </head>
 <body>
@@ -15,34 +12,34 @@
       <div class="sidebar-top">
         <div class="brand">
           <div class="brand-mark">
-            <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="4" y="4" width="36" height="36" rx="12" fill="#EEF2FF"/>
-              <path d="M22 10L31 14.5V22.8C31 28.1 27.4 32.7 22 34C16.6 32.7 13 28.1 13 22.8V14.5L22 10Z" fill="#6366F1"/>
-              <path d="M18.6 22.4L21 24.8L26 19.8" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="3" width="42" height="42" rx="10" fill="#1B1717"/>
+              <path d="M24 8L36 13.5V23.5C36 30.5 30.8 36.8 24 38.5C17.2 36.8 12 30.5 12 23.5V13.5L24 8Z" fill="#810100"/>
+              <path d="M20 24.5L23 27.5L29 21.5" stroke="#EDEBDD" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
           <div class="brand-copy">
             <div class="brand-title">NETGUARD</div>
-            <div class="brand-subtitle">Premium Security Operations Console</div>
+            <div class="brand-subtitle">Network monitor</div>
           </div>
         </div>
 
         <div class="mission-card">
-          <div class="mission-kicker">Operator Workspace</div>
-          <h3>Threat-aware visibility for every authenticated session.</h3>
-          <p>Discover hosts, analyze exposed services, review your own scan history, and launch guided remediation from one hardened command center.</p>
+          <div class="mission-kicker">Your network</div>
+          <h3>See what’s connected.</h3>
+          <p>Find devices, check open ports, and review your scans.</p>
         </div>
 
         <div class="sidebar-section">
           <div class="sidebar-caption">Navigation</div>
           <nav class="sidebar-nav">
             <a href="#hero-topbar" class="nav-link active">Overview</a>
-            <a href="#panel-radar" class="nav-link">Network Radar</a>
-            <a href="#panel-activity" class="nav-link">Your Activity</a>
-            <a href="#panel-patcher" class="nav-link">Auto-Patcher</a>
-            <a href="#panel-fingerprint" class="nav-link">Host Profile</a>
-            <a href="#panel-ai" class="nav-link">AI Copilot</a>
-            <a href="#panel-results" class="nav-link">Threat Logs</a>
+            <a href="#panel-radar" class="nav-link">Scan network</a>
+            <a href="#panel-activity" class="nav-link">Scan history</a>
+            <a href="#panel-patcher" class="nav-link">Suggested fixes</a>
+            <a href="#panel-fingerprint" class="nav-link">This device</a>
+            <a href="#panel-ai" class="nav-link">Security help</a>
+            <a href="#panel-results" class="nav-link">Scan results</a>
           </nav>
         </div>
       </div>
@@ -52,7 +49,7 @@
           <span class="user-avatar">{{ user.username|first|upper }}</span>
           <div class="user-meta">
             <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
-            <span class="user-role">Authenticated Operator</span>
+            <span class="user-role">Signed in</span>
           </div>
           <a href="{% url 'logout' %}" class="logout-link">Logout</a>
         </div>
@@ -62,26 +59,22 @@
     <main class="main-canvas">
       <section class="hero-topbar" id="hero-topbar">
         <div class="hero-copy">
-          <div class="breadcrumb">Control Plane <span>/</span> Network Defense</div>
-          <h1 class="hero-title">Top-tier network defense for your personal security workspace.</h1>
-          <p class="hero-subtitle">
-            Launch subnet sweeps, inspect live exposure, preserve user-specific scan history, and convert findings
-            into precise remediation commands with AI-assisted context.
-          </p>
+          <div class="breadcrumb">NetGuard <span>/</span> Overview</div>
+          <h1 class="hero-title">Check your network.</h1>
+          <p class="hero-subtitle">Find devices, check open ports, and see what needs attention.</p>
           {% if privilege_warning %}
           <div class="inline-warning">{{ privilege_warning }}</div>
           {% endif %}
         </div>
 
         <div class="hero-status-card">
-          <div class="hero-status-label">Platform Status</div>
+          <div class="hero-status-label">Scanner</div>
           <div class="topbar-status">
             <span class="status-dot" id="status-dot"></span>
-            <span id="val-status">STANDBY</span>
+            <span id="val-status">Ready</span>
           </div>
           <div class="hero-status-meta">
-            <span>Realtime host fingerprinting</span>
-            <span>User-scoped activity tracking</span>
+            <span>Ready to scan</span>
           </div>
         </div>
       </section>
@@ -89,38 +82,38 @@
       <section class="kpi-row">
         <div class="kpi-card stat-chip" id="chip-devices">
           <div class="kpi-head">
-            <div class="kpi-label stat-label">Discovered Nodes</div>
+            <div class="kpi-label stat-label">Devices found</div>
             <div class="kpi-icon">◎</div>
           </div>
           <div class="kpi-value stat-value" id="val-devices">—</div>
-          <div class="kpi-foot">Assets detected in your current sweep</div>
+          <div class="kpi-foot">In this scan</div>
         </div>
 
         <div class="kpi-card stat-chip" id="chip-critical">
           <div class="kpi-head">
-            <div class="kpi-label stat-label">Critical Findings</div>
+            <div class="kpi-label stat-label">High risk</div>
             <div class="kpi-icon">!</div>
           </div>
           <div class="kpi-value stat-value" id="val-critical">—</div>
-          <div class="kpi-foot">High-risk services requiring priority response</div>
+          <div class="kpi-foot">Open ports to review</div>
         </div>
 
         <div class="kpi-card stat-chip" id="chip-safe">
           <div class="kpi-head">
-            <div class="kpi-label stat-label">Safe Findings</div>
+            <div class="kpi-label stat-label">Lower risk</div>
             <div class="kpi-icon">✓</div>
           </div>
           <div class="kpi-value stat-value" id="val-safe">—</div>
-          <div class="kpi-foot">Lower-risk or informational findings</div>
+          <div class="kpi-foot">Other open ports</div>
         </div>
 
         <div class="kpi-card stat-chip" id="chip-status">
           <div class="kpi-head">
-            <div class="kpi-label stat-label">Operating Mode</div>
+            <div class="kpi-label stat-label">Status</div>
             <div class="kpi-icon">◈</div>
           </div>
-          <div class="kpi-value kpi-status"><span id="kpi-status-text">Standby</span></div>
-          <div class="kpi-foot">Live engine state for scans and analysis</div>
+          <div class="kpi-value kpi-status"><span id="kpi-status-text">Ready</span></div>
+          <div class="kpi-foot">Scanner state</div>
         </div>
       </section>
 
@@ -128,41 +121,41 @@
         <section class="panel panel-hero" id="panel-radar">
           <div class="panel-header">
             <div class="panel-heading">
-              <div class="panel-eyebrow">Discovery</div>
-              <h2 class="panel-title">Network Radar</h2>
-              <p class="panel-sub">Sweep your subnet or manually target a host for deep inspection and threat analysis.</p>
+              <div class="panel-eyebrow">Devices</div>
+              <h2 class="panel-title">Scan your network</h2>
+              <p class="panel-sub">Scan your local network or enter an IP address.</p>
             </div>
             <span class="panel-badge badge-neutral" id="radar-badge">Idle</span>
           </div>
 
           <div class="scan-form">
             <div class="scan-input-wrap">
-              <input class="scan-input" id="manual-ip" type="text" placeholder="192.168.x.x or leave blank to auto-discover">
+              <input class="scan-input" id="manual-ip" type="text" placeholder="IP address (optional)">
             </div>
-            <button class="btn btn-primary btn-sm" id="btn-sweep" onclick="initiateNetworkScan()">Sweep</button>
+            <button class="btn btn-primary btn-sm" id="btn-sweep" onclick="initiateNetworkScan()">Scan</button>
           </div>
 
           <div class="panel-mini-grid">
             <div class="mini-stat">
-              <span class="mini-label">Operator</span>
+              <span class="mini-label">Account</span>
               <strong>{{ user.username }}</strong>
             </div>
             <div class="mini-stat">
               <span class="mini-label">Session</span>
-              <strong>Authenticated</strong>
+              <strong>Signed in</strong>
             </div>
             <div class="mini-stat">
-              <span class="mini-label">Target Input</span>
-              <strong id="selected-target-copy">Auto Discovery</strong>
+              <span class="mini-label">Target</span>
+              <strong id="selected-target-copy">Local network</strong>
             </div>
           </div>
 
-          <div class="section-label">Discovered Devices</div>
+          <div class="section-label">Devices</div>
           <div class="device-list" id="device-list">
             <div class="empty-state">
               <div class="empty-icon">◌</div>
-              <div>Awaiting network sweep</div>
-              <p>Launch a subnet scan to enumerate nearby hosts.</p>
+              <div>No devices found yet</div>
+              <p>Run a scan to look for devices on your network.</p>
             </div>
           </div>
         </section>
@@ -170,11 +163,11 @@
         <section class="panel" id="panel-activity">
           <div class="panel-header">
             <div class="panel-heading">
-              <div class="panel-eyebrow">User Context</div>
-              <h2 class="panel-title">Your Activity</h2>
-              <p class="panel-sub">Recent scan history is tied to your account so each user sees their own operational trail.</p>
+              <div class="panel-eyebrow">History</div>
+              <h2 class="panel-title">Recent scans</h2>
+              <p class="panel-sub">Your recent scan activity.</p>
             </div>
-            <span class="panel-badge badge-brand" id="activity-badge">Account</span>
+            <span class="panel-badge badge-brand" id="activity-badge">Recent</span>
           </div>
 
           <div class="activity-summary">
@@ -201,8 +194,8 @@
           <div class="activity-feed" id="activity-list">
             <div class="activity-empty">
               <div class="empty-icon">◎</div>
-              <div>No recent authenticated scan history yet.</div>
-              <p>Your account-specific history will appear here after you run scans.</p>
+              <div>No scans yet</div>
+              <p>Your scan history will appear here.</p>
             </div>
           </div>
         </section>
@@ -210,17 +203,16 @@
         <section class="panel" id="panel-patcher">
           <div class="panel-header">
             <div class="panel-heading">
-              <div class="panel-eyebrow">Response Automation</div>
-              <h2 class="panel-title">Auto-Patcher</h2>
-              <p class="panel-sub">OS-aware remediation commands rendered for rapid containment and firewall hardening.</p>
+              <div class="panel-eyebrow">Recommendations</div>
+              <h2 class="panel-title">Suggested fixes</h2>
+              <p class="panel-sub">Firewall rules you can review and apply.</p>
             </div>
             <span class="panel-badge badge-neutral" id="patcher-badge">Awaiting</span>
           </div>
 
           <div class="terminal" id="terminal">
-            <div>Awaiting threat detection...</div>
-            <div>Auto-patcher will generate OS-specific firewall rules for critical ports.</div>
-            <div>Run a network scan and inspect a device to begin.</div>
+            <div>No suggestions yet.</div>
+            <div>Run a scan and select a device to see suggested firewall rules.</div>
             <span class="cursor"></span>
           </div>
         </section>
@@ -229,8 +221,8 @@
           <div class="panel-header">
             <div class="panel-heading">
               <div class="panel-eyebrow">Host Profile</div>
-              <h2 class="panel-title">Host Fingerprint</h2>
-              <p class="panel-sub">Real-time system identity and local environment metadata for the active operator workstation.</p>
+              <h2 class="panel-title">This device</h2>
+              <p class="panel-sub">Basic details about the computer running NetGuard.</p>
             </div>
             <span class="panel-badge badge-safe">Live</span>
           </div>
@@ -271,7 +263,7 @@
           </div>
 
           <div class="btn-download-wrap" id="btn-download-wrap" style="display:none;">
-            <button class="btn btn-danger" onclick="downloadLockdownScript()">Download Lockdown Script</button>
+            <button class="btn btn-danger" onclick="downloadLockdownScript()">Download firewall rules</button>
           </div>
         </section>
 
@@ -279,10 +271,10 @@
           <div class="panel-header">
             <div class="panel-heading">
               <div class="panel-eyebrow">Assistant</div>
-              <h2 class="panel-title">AI Copilot</h2>
-              <p class="panel-sub">Threat context, plain-language remediation, and operator-friendly security guidance.</p>
+              <h2 class="panel-title">Security help</h2>
+              <p class="panel-sub">Ask about a port or scan result.</p>
             </div>
-            <span class="panel-badge badge-brand">Neural</span>
+            <span class="panel-badge badge-brand">AI</span>
           </div>
 
           <div class="quick-prompts">
@@ -295,13 +287,13 @@
 
           <div class="ai-messages" id="ai-messages">
             <div class="msg ai">
-              <div class="msg-tag">NETGUARD AI</div>
-              Hello. I'm your cybersecurity copilot. Ask about port vulnerabilities, firewall hardening, attack vectors, or anything security-related.
+              <div class="msg-tag">NETGUARD</div>
+              Hi! Ask about a port, scan result, or security setting.
             </div>
           </div>
 
           <div class="ai-input-row">
-            <input class="ai-input" id="ai-input" type="text" placeholder="Ask about threats, misconfigurations, mitigation, CVEs..." onkeydown="if(event.key==='Enter') sendChat()">
+            <input class="ai-input" id="ai-input" type="text" placeholder="Ask a question..." onkeydown="if(event.key==='Enter') sendChat()">
             <button class="btn btn-send" onclick="sendChat()">Send</button>
           </div>
         </section>
@@ -309,9 +301,9 @@
         <section class="panel panel-results" id="panel-results">
           <div class="panel-header">
             <div class="panel-heading">
-              <div class="panel-eyebrow">Threat Logs</div>
-              <h2 class="panel-title">Threat Intelligence Report</h2>
-              <p class="panel-sub" id="results-sub">Deep port scan, OS fingerprint, and AI threat analysis.</p>
+              <div class="panel-eyebrow">Details</div>
+              <h2 class="panel-title">Scan results</h2>
+              <p class="panel-sub" id="results-sub">Open ports and scan details.</p>
             </div>
             <div class="results-badges" id="results-badges"></div>
           </div>
@@ -414,8 +406,8 @@
         list.innerHTML = `
           <div class="activity-empty">
             <div class="empty-icon">◎</div>
-            <div>No recent authenticated scan history yet.</div>
-            <p>Your account-specific history will appear here after you run scans.</p>
+            <div>No scans yet</div>
+            <p>Your scan history will appear here.</p>
           </div>
         `;
         return;
@@ -445,7 +437,7 @@
 
     function riskToneClass(value) {
       const upper = String(value).toUpperCase();
-      if (upper.includes('CRITICAL') || upper.includes('THREAT')) return 'is-critical';
+      if (upper.includes('CRITICAL') || upper.includes('THREAT') || upper.includes('REVIEW')) return 'is-critical';
       if (upper.includes('WARN') || upper.includes('MEDIUM')) return 'is-warn';
       if (upper.includes('SAFE') || upper.includes('LOW') || upper.includes('SECURE') || upper.includes('COMPLETED')) return 'is-safe';
       return 'is-neutral';
@@ -461,9 +453,9 @@
 
       btn.textContent = 'Scanning';
       btn.classList.add('scanning');
-      badge.textContent = 'Sweeping';
+      badge.textContent = 'Scanning';
       badge.className = 'panel-badge badge-warn';
-      setStatus('SWEEPING', 'warn');
+      setStatus('Scanning', 'warn');
 
       list.innerHTML = `
         <div class="loader loader-block">
@@ -471,7 +463,7 @@
             <div class="loader-bar"></div><div class="loader-bar"></div>
             <div class="loader-bar"></div><div class="loader-bar"></div>
           </div>
-          <span>Pinging subnet and enumerating nearby devices...</span>
+          <span>Looking for devices...</span>
         </div>
       `;
 
@@ -480,31 +472,31 @@
         const devices = await response.json();
 
         if (!response.ok || devices.error) {
-          throw new Error(devices.error || 'Unable to complete subnet sweep');
+          throw new Error(devices.error || 'Could not scan the network.');
         }
 
         state.devices = devices;
         renderDeviceList(devices);
         updateChip('devices', devices.length, devices.length ? 'active' : '');
-        badge.textContent = `${devices.length} Nodes`;
+        badge.textContent = `${devices.length} devices`;
         badge.className = 'panel-badge badge-safe';
-        setStatus('ACTIVE', 'safe');
-        toast(`${devices.length} device${devices.length !== 1 ? 's' : ''} discovered`, 'ok');
+        setStatus('Ready', 'safe');
+        toast(`${devices.length} device${devices.length !== 1 ? 's' : ''} found`, 'ok');
       } catch (error) {
-        toast(`Network sweep failed: ${error.message}`, 'error');
+        toast(`Network scan failed: ${error.message}`, 'error');
         badge.textContent = 'Error';
         badge.className = 'panel-badge badge-critical';
         list.innerHTML = `
           <div class="empty-state">
             <div class="empty-icon">✕</div>
-            <div>Sweep failed. Is nmap installed?</div>
-            <p>Verify local permissions and scanning dependencies.</p>
+            <div>Could not scan the network.</div>
+            <p>Check that Nmap is installed and try again.</p>
           </div>
         `;
         setStatus('ERROR', 'critical');
       } finally {
         state.scanning = false;
-        btn.textContent = 'Sweep';
+        btn.textContent = 'Scan';
         btn.classList.remove('scanning');
       }
     }
@@ -517,7 +509,7 @@
           <div class="empty-state">
             <div class="empty-icon">◌</div>
             <div>No devices found.</div>
-            <p>Try sweeping again or verify your network interface.</p>
+            <p>Check your network connection and try again.</p>
           </div>
         `;
         return;
@@ -569,21 +561,21 @@
       const patcherBadge = document.getElementById('patcher-badge');
 
       terminal.innerHTML = `
-        <div><span class="terminal-accent">[NETGUARD]</span> Initiating deep scan → ${escHtml(ip)}</div>
-        <div class="terminal-muted">Port scan + OS fingerprint + AI analysis</div>
-        <div class="terminal-muted">This may take 30–120 seconds...</div>
+        <div><span class="terminal-accent">[NETGUARD]</span> Scanning ${escHtml(ip)}</div>
+        <div class="terminal-muted">Checking selected ports and device details.</div>
+        <div class="terminal-muted">This may take a little while.</div>
         <div class="loader terminal-loader">
           <div class="loader-bars">
             <div class="loader-bar"></div><div class="loader-bar"></div>
             <div class="loader-bar"></div><div class="loader-bar"></div>
           </div>
-          <span>Running nmap and building threat profile...</span>
+          <span>Checking ports...</span>
         </div>
       `;
 
       patcherBadge.textContent = 'Scanning';
       patcherBadge.className = 'panel-badge badge-warn';
-      setStatus('SCANNING', 'critical');
+      setStatus('Scanning', 'critical');
 
       try {
         const response = await fetch('/api/scan/', {
@@ -603,9 +595,9 @@
         updateHeaderStats(data);
         prependActivityFromScan(data);
 
-        patcherBadge.textContent = data.results?.length ? 'Threats Found' : 'Clean';
+        patcherBadge.textContent = data.results?.length ? 'Review ports' : 'No findings';
         patcherBadge.className = data.results?.length ? 'panel-badge badge-critical' : 'panel-badge badge-safe';
-        setStatus(data.results?.length ? 'THREAT' : 'SECURE', data.results?.length ? 'critical' : 'safe');
+        setStatus(data.results?.length ? 'Review results' : 'No high-risk ports', data.results?.length ? 'critical' : 'safe');
 
         if (data.is_host && data.host_script) {
           document.getElementById('btn-download-wrap').style.display = 'flex';
@@ -640,7 +632,7 @@
       const next = [{
         target_label: data.target_label || data.target,
         timestamp: 'Just now',
-        status: data.results?.length ? 'Threat Detected' : 'Secure',
+        status: data.results?.length ? 'Review ports' : 'No high-risk ports',
         open_port_count: data.results?.length || 0,
         critical_count: (data.results || []).filter((result) => result.risk === 'CRITICAL').length,
         risk_score: data.risk_score ?? '—'
@@ -681,7 +673,7 @@
 
       badges.innerHTML = `
         <span class="panel-badge ${data.results?.length ? 'badge-critical' : 'badge-safe'}">
-          ${data.results?.length ? `${data.results.length} Threat${data.results.length > 1 ? 's' : ''}` : 'All Clear'}
+          ${data.results?.length ? `${data.results.length} port${data.results.length > 1 ? 's' : ''} to review` : 'No high-risk ports'}
         </span>
       `;
 
@@ -690,8 +682,8 @@
           <div class="secure-banner">
             <div class="secure-icon">✦</div>
             <div>
-              <div class="secure-text-main">No vulnerabilities detected</div>
-              <div class="secure-text-sub">All scanned ports are closed or filtered. Risk Score: 100/100</div>
+              <div class="secure-text-main">No open ports found</div>
+              <div class="secure-text-sub">The scanned ports were closed or filtered. This does not rule out other security issues.</div>
             </div>
           </div>
         `;
@@ -699,7 +691,7 @@
       }
 
       const score = data.risk_score || 0;
-      const scoreColor = score >= 70 ? 'var(--safe-text)' : score >= 40 ? '#D97706' : 'var(--critical-text)';
+      const scoreColor = score >= 70 ? 'var(--jade-text)' : score >= 40 ? 'var(--amber-text)' : 'var(--critical-text)';
       const aiMap = {};
       (data.ai_explanations || []).forEach((item) => {
         aiMap[item.port] = item.explanation;
@@ -717,7 +709,7 @@
             <div class="threat-body">
               <div class="threat-service">${escHtml(result.service)}</div>
               <div class="threat-analysis">${escHtml(result.analysis)}</div>
-              ${ai ? `<div class="threat-ai"><div class="threat-ai-label">AI Analysis</div>${escHtml(ai)}</div>` : ''}
+              ${ai ? `<div class="threat-ai"><div class="threat-ai-label">Explanation</div>${escHtml(ai)}</div>` : ''}
             </div>
           </div>
         `;
@@ -725,7 +717,7 @@
 
       const patchHtml = (data.patch_commands || []).length
         ? `
-          <div class="section-label">Remediation Commands</div>
+          <div class="section-label">Suggested firewall rules</div>
           ${(data.patch_commands || []).map((cmd) => `
             <div class="patch-cmd" onclick="copyCmd(this, '${cmd.replace(/'/g, "\\'")}')">
               <div class="patch-cmd-text">${escHtml(cmd)}</div>
@@ -746,7 +738,7 @@
           </div>
         </div>
 
-        <div class="section-label">Threat Matrix</div>
+        <div class="section-label">Open ports</div>
         <div class="threat-list">${threatsHtml}</div>
         ${patchHtml}
       `;
@@ -756,27 +748,26 @@
       const terminal = document.getElementById('terminal');
       const lines = [];
 
-      lines.push(`<div><span class="terminal-accent">[NETGUARD]</span> Scan complete → ${escHtml(data.target)}</div>`);
-      lines.push(`<div class="terminal-muted">OS Detected: ${escHtml(data.os_detected || 'Unknown')}</div>`);
-      lines.push(`<div class="terminal-muted">OS Inferred: ${escHtml(data.os_inferred || 'Unknown')}</div>`);
-      lines.push(`<div class="terminal-muted">Risk Score: ${escHtml(String(data.risk_score))}/100</div>`);
+      lines.push(`<div><span class="terminal-accent">[NETGUARD]</span> Scan complete: ${escHtml(data.target)}</div>`);
+      lines.push(`<div class="terminal-muted">Operating system: ${escHtml(data.os_detected || data.os_inferred || 'Unknown')}</div>`);
+      lines.push(`<div class="terminal-muted">Risk score: ${escHtml(String(data.risk_score))}/100</div>`);
 
       if (!data.results?.length) {
-        lines.push('<div class="terminal-success">[✓] No critical ports detected — system is secure</div>');
+        lines.push('<div class="terminal-success">No critical open ports were found in this scan.</div>');
       } else {
-        lines.push(`<div class="terminal-error">[!] ${escHtml(String(data.results.length))} vulnerable port(s) detected</div>`);
-        lines.push('<div class="terminal-muted">Auto-generated remediation commands:</div>');
+        lines.push(`<div class="terminal-error">${escHtml(String(data.results.length))} port(s) need review.</div>`);
+        lines.push('<div class="terminal-muted">Suggested firewall rules:</div>');
         (data.patch_commands || []).forEach((cmd) => {
           lines.push(`<div><span class="terminal-accent">$</span> ${escHtml(cmd)}</div>`);
         });
 
         if (!(data.patch_commands || []).length) {
-          lines.push('<div class="terminal-warn">Manual review required for this OS type</div>');
+          lines.push('<div class="terminal-warn">No rules are available for this operating system.</div>');
         }
       }
 
       if (data.is_host && data.host_script) {
-        lines.push('<div class="terminal-success">[✓] Host lockdown script ready for download</div>');
+        lines.push('<div class="terminal-success">Firewall script is ready to download.</div>');
       }
 
       lines.push('<span class="cursor"></span>');

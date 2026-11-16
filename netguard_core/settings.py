@@ -17,13 +17,27 @@ except ImportError:
 
 
 # ─── Security ─────────────────────────────────────────────────────────────────
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'CHANGE-ME-in-production')
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+if not DEBUG and SECRET_KEY == 'CHANGE-ME-in-production':
+    raise RuntimeError('Set DJANGO_SECRET_KEY in the production environment.')
 
-CSRF_COOKIE_SECURE = False
+ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host.strip()]
+vercel_host = os.getenv('VERCEL_URL', '').strip()
+if vercel_host:
+    ALLOWED_HOSTS.append(vercel_host)
+
+CSRF_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_SECURE = not DEBUG
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+if vercel_host:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{vercel_host}')
+CSRF_TRUSTED_ORIGINS.extend(
+    origin.strip() for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if origin.strip()
+)
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # ─── Application definition ───────────────────────────────────────────────────
@@ -69,12 +83,17 @@ WSGI_APPLICATION = 'netguard_core.wsgi.application'
 
 
 # ─── Database ─────────────────────────────────────────────────────────────────
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DATABASE_URL = os.getenv('DATABASE_URL', '').strip()
+if DATABASE_URL:
+    import dj_database_url
+    DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=not DEBUG)}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
 
 
 # ─── Password validation ──────────────────────────────────────────────────────
@@ -96,6 +115,7 @@ USE_TZ = True
 # ─── Static files ─────────────────────────────────────────────────────────────
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'scanner' / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
 # ─── Auth redirects ───────────────────────────────────────────────────────────
@@ -106,35 +126,3 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 
 
-# ─── Startup environment validator ─────────────────────────────────────────────
-import sys as _sys
-
-_REQUIRED_ENV = {
-    'GROQ_API_KEY': (
-        'Get a free key at https://console.groq.com/keys  '
-        'then add:  GROQ_API_KEY=gsk_...  to your .env'
-    ),
-    'DJANGO_SECRET_KEY': (
-        'Generate one with:  '
-        'python -c "from django.core.management.utils import get_random_secret_key; '
-        'print(get_random_secret_key())"'
-    ),
-    'NETGUARD_ENCRYPTION_KEY': (
-        'Generate one with:  '
-        'python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"'
-    ),
-}
-
-# Skip validation during management commands that don't need the full stack
-_MGMT_CMDS = {'migrate', 'makemigrations', 'collectstatic', 'createsuperuser', 'shell'}
-_is_mgmt   = any(cmd in _sys.argv for cmd in _MGMT_CMDS)
-
-_missing = [k for k in _REQUIRED_ENV if not os.getenv(k, '').strip()]
-if _missing and not _is_mgmt:
-    _sep = '=' * 70
-    print(f'\n{_sep}', file=_sys.stderr)
-    print('⛔  NetGuard — missing .env variables (server may behave incorrectly):', file=_sys.stderr)
-    for _key in _missing:
-        print(f'    ✗  {_key}', file=_sys.stderr)
-        print(f'       {_REQUIRED_ENV[_key]}', file=_sys.stderr)
-    print(_sep + '\n', file=_sys.stderr)

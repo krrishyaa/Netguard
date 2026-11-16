@@ -4,7 +4,9 @@ from cryptography.fernet import Fernet
 import os
 import json
 
-ENCRYPTION_KEY = os.getenv('NETGUARD_ENCRYPTION_KEY', Fernet.generate_key().decode())
+ENCRYPTION_KEY = os.getenv('NETGUARD_ENCRYPTION_KEY')
+if not ENCRYPTION_KEY:
+    raise RuntimeError('NETGUARD_ENCRYPTION_KEY must be set to keep scan history readable across restarts.')
 cipher = Fernet(ENCRYPTION_KEY.encode())
 
 

@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NetGuard — Create Account</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/scanner/style.css">
 </head>
 <body class="auth-page">
@@ -14,23 +11,19 @@
     <section class="auth-hero">
       <div class="auth-brand-card">
         <div class="auth-brand-mark">
-          <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="4" y="4" width="36" height="36" rx="12" fill="#EEF2FF"/>
-            <path d="M22 10L31 14.5V22.8C31 28.1 27.4 32.7 22 34C16.6 32.7 13 28.1 13 22.8V14.5L22 10Z" fill="#6366F1"/>
-            <path d="M18.6 22.4L21 24.8L26 19.8" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="3" width="42" height="42" rx="10" fill="#1B1717"/>
+            <path d="M24 8L36 13.5V23.5C36 30.5 30.8 36.8 24 38.5C17.2 36.8 12 30.5 12 23.5V13.5L24 8Z" fill="#810100"/>
+            <path d="M20 24.5L23 27.5L29 21.5" stroke="#EDEBDD" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-
-        <div class="auth-brand-copy">
-          <div class="auth-kicker">NetGuard Identity Layer</div>
-          <h1>Create a secure workspace with personal scan history.</h1>
-          <p>Each operator gets an isolated account, a cleaner dashboard, and recent activity tied directly to their authenticated session.</p>
-        </div>
-
+        <div class="auth-kicker">NetGuard</div>
+        <h1>Create your account.</h1>
+        <p>Save your scan history and view it when you sign in.</p>
         <div class="auth-feature-list">
-          <div class="auth-feature-pill">User-Specific Activity</div>
-          <div class="auth-feature-pill">Premium Dashboard Access</div>
-          <div class="auth-feature-pill">Guided Threat Response</div>
+          <div class="auth-feature-pill">Device scan</div>
+          <div class="auth-feature-pill">Port checks</div>
+          <div class="auth-feature-pill">Scan history</div>
         </div>
       </div>
     </section>
@@ -39,8 +32,8 @@
       <div class="auth-panel">
         <div class="auth-panel-header">
           <div class="panel-eyebrow">Create account</div>
-          <h2 class="auth-title">Start using NetGuard</h2>
-          <p class="auth-subtitle">Set up your identity once and keep every scan, alert, and activity stream associated with your account.</p>
+          <h2 class="auth-title">Create an account</h2>
+          <p class="auth-subtitle">Fill in your details to get started.</p>
         </div>
 
         {% if error %}
@@ -53,7 +46,7 @@
           <div class="auth-grid">
             <div class="auth-field">
               <label for="full_name">Full Name</label>
-              <input id="full_name" type="text" name="full_name" placeholder="Aarav Sharma" value="{{ form_data.full_name|default:'' }}">
+              <input id="full_name" type="text" name="full_name" placeholder="Your name" value="{{ form_data.full_name|default:'' }}">
             </div>
 
             <div class="auth-field">
@@ -65,18 +58,18 @@
           <div class="auth-field">
             <label for="email">Email Address</label>
             <input id="email" type="email" name="email" placeholder="name@example.com" value="{{ form_data.email|default:'' }}">
-            <div class="auth-help">Optional, but useful for account identification.</div>
+            <div class="auth-help">Optional — used for account identification.</div>
           </div>
 
           <div class="auth-grid">
             <div class="auth-field">
               <label for="password">Password</label>
-              <input id="password" type="password" name="password" placeholder="Create a strong password" required>
+              <input id="password" type="password" name="password" placeholder="Create password" required>
             </div>
 
             <div class="auth-field">
-              <label for="password_confirm">Confirm Password</label>
-              <input id="password_confirm" type="password" name="password_confirm" placeholder="Re-enter your password" required>
+              <label for="password_confirm">Confirm</label>
+              <input id="password_confirm" type="password" name="password_confirm" placeholder="Re-enter password" required>
             </div>
           </div>
 

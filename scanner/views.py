@@ -27,7 +27,9 @@ from .utils import (
 )
 
 GROQ_API_KEY = os.getenv('GROQ_API_KEY', '').strip()
-ENCRYPTION_KEY_STR = os.getenv('NETGUARD_ENCRYPTION_KEY', Fernet.generate_key().decode())
+ENCRYPTION_KEY_STR = os.getenv('NETGUARD_ENCRYPTION_KEY')
+if not ENCRYPTION_KEY_STR:
+    raise RuntimeError('NETGUARD_ENCRYPTION_KEY must be configured.')
 cipher = Fernet(ENCRYPTION_KEY_STR.encode())
 
 if not GROQ_API_KEY:
@@ -255,6 +257,8 @@ def host_fingerprint(request):
 @login_required
 @csrf_exempt
 def arp_discover(request):
+    if os.getenv('VERCEL') == '1':
+        return JsonResponse({'error': 'Network discovery needs to run on a device connected to your network. This hosted demo cannot scan your local network.'}, status=503)
     try:
         local_ip = get_local_ip()
         if local_ip == 'Unknown':
@@ -334,6 +338,8 @@ def arp_discover(request):
 @login_required
 @csrf_exempt
 def scan_target(request):
+    if os.getenv('VERCEL') == '1':
+        return JsonResponse({'error': 'Port scans need to run on a device connected to your network. This hosted demo cannot scan your local network.'}, status=503)
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
     try:
