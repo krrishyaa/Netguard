@@ -2,6 +2,17 @@
 name = "netguard"
 version = "1.0.0"
 requires-python = ">=3.12,<3.14"
+dependencies = [
+    "Django==6.0.3",
+    "python-dotenv==1.0.0",
+    "groq==0.8.0",
+    "cryptography==46.0.6",
+    "mac-vendor-lookup==0.1.12",
+    "netifaces==0.11.0",
+    "requests==2.33.0",
+    "dj-database-url==2.3.0",
+    "psycopg[binary]==3.2.6",
+]
 
 [tool.vercel.scripts]
 build = 'DATABASE_URL="$DATABASE_URL_UNPOOLED" python manage.py migrate --noinput'
