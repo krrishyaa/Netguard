@@ -23,16 +23,21 @@ if not DEBUG and SECRET_KEY == 'CHANGE-ME-in-production':
     raise RuntimeError('Set DJANGO_SECRET_KEY in the production environment.')
 
 ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host.strip()]
-vercel_host = os.getenv('VERCEL_URL', '').strip()
-if vercel_host:
-    ALLOWED_HOSTS.append(vercel_host)
+vercel_hosts = {
+    host.strip()
+    for host in (
+        os.getenv('VERCEL_URL', ''),
+        os.getenv('VERCEL_PROJECT_PRODUCTION_URL', ''),
+    )
+    if host.strip()
+}
+ALLOWED_HOSTS.extend(vercel_hosts)
 
 CSRF_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
-if vercel_host:
-    CSRF_TRUSTED_ORIGINS.append(f'https://{vercel_host}')
+CSRF_TRUSTED_ORIGINS.extend(f'https://{host}' for host in vercel_hosts)
 CSRF_TRUSTED_ORIGINS.extend(
     origin.strip() for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if origin.strip()
 )
