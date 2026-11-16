@@ -17,7 +17,7 @@ except ImportError:
 
 
 # ─── Security ─────────────────────────────────────────────────────────────────
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+DEBUG = os.getenv('VERCEL') != '1' and os.getenv('DEBUG', 'False').lower() == 'true'
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'CHANGE-ME-in-production')
 if not DEBUG and SECRET_KEY == 'CHANGE-ME-in-production':
     raise RuntimeError('Set DJANGO_SECRET_KEY in the production environment.')

@@ -1,0 +1,9 @@
+.env
+.env.*
+netguard_env/
+venv/
+env/
+tmp/
+*.docx
+*.pdf
+db.sqlite3

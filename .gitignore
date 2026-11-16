@@ -26,6 +26,9 @@ db.sqlite3
 *.log
 /staticfiles/
 /media/
+tmp/
+NetGuard_Project_Report.docx
+frontpage-style-evidence.json
 
 # Testing
 .pytest_cache/
@@ -40,3 +43,5 @@ Thumbs.db
 *.pem
 *.key
 *.crt
+.vercel
+.env*

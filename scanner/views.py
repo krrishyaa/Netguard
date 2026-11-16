@@ -150,7 +150,7 @@ def _register_context(request, error=None):
     }
 
 
-@login_required(login_url='login')
+@login_required(login_url='/login/')
 def index(request):
     return render(request, 'scanner/index.html', {
         'privilege_warning': PRIVILEGE_STATUS.get('warning', ''),
