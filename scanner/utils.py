@@ -4,6 +4,8 @@ import subprocess
 import os
 import re
 import uuid
+import shutil
+from pathlib import Path
 from functools import lru_cache
 
 try:
@@ -101,8 +103,39 @@ def get_host_mac():
         return 'N/A'
 
 
-def nmap_os_mac_args(target_ip, ports_str):
-    return f'nmap -Pn -sS -O -p {ports_str} --osscan-limit --max-retries 1 {target_ip}'
+def find_nmap():
+    """Return an installed Nmap executable, including the common Windows path."""
+    configured = os.getenv('NMAP_PATH', '').strip().strip('"')
+    if configured and Path(configured).is_file():
+        return configured
+
+    located = shutil.which('nmap') or shutil.which('nmap.exe')
+    if located:
+        return located
+
+    if platform.system() == 'Windows':
+        for candidate in (
+            Path(os.getenv('ProgramFiles(x86)', r'C:\Program Files (x86)')) / 'Nmap' / 'nmap.exe',
+            Path(os.getenv('ProgramFiles', r'C:\Program Files')) / 'Nmap' / 'nmap.exe',
+        ):
+            if candidate.is_file():
+                return str(candidate)
+    return None
+
+
+def nmap_os_mac_args(target_ip, ports_str, privileged=True):
+    """Build a safe argv list; unprivileged scans use TCP connect mode."""
+    executable = find_nmap()
+    if not executable:
+        raise FileNotFoundError('Nmap was not found. Install Nmap or set NMAP_PATH.')
+
+    args = [executable, '-Pn']
+    if privileged:
+        args.extend(['-sS', '-O', '--osscan-limit'])
+    else:
+        args.append('-sT')
+    args.extend(['-p', ports_str, '--max-retries', '1', target_ip])
+    return args
 
 
 @lru_cache(maxsize=1000)

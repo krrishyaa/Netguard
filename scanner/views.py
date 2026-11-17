@@ -23,7 +23,7 @@ import warnings
 from .models import ScanLog
 from .utils import (
     check_privileges, get_device_profile, get_host_mac,
-    get_all_local_ips, nmap_os_mac_args, get_local_ip
+    get_all_local_ips, nmap_os_mac_args, get_local_ip, find_nmap
 )
 
 GROQ_API_KEY = os.getenv('GROQ_API_KEY', '').strip()
@@ -267,12 +267,19 @@ def arp_discover(request):
         network = ipaddress.ip_network(f"{local_ip}/24", strict=False)
         target_cidr = str(network)
 
+        nmap_path = find_nmap()
+        if not nmap_path:
+            return JsonResponse({'error': 'Nmap was not found. Install Nmap and restart NetGuard.'}, status=503)
+
         nmap_cmd = [
-            'nmap', '-sn', '-PR', '-PS1-100', '-PA1-100', '-PU53,67,123', '-T4',
+            nmap_path, '-sn', '-PR', '-PS1-100', '-PA1-100', '-PU53,67,123', '-T4',
             '--max-retries', '1', '--host-timeout', '180s', target_cidr
         ]
 
         proc = subprocess.run(nmap_cmd, capture_output=True, text=True, timeout=360)
+        if proc.returncode != 0:
+            detail = (proc.stderr or proc.stdout).strip()
+            return JsonResponse({'error': detail or 'Nmap could not complete network discovery.'}, status=502)
         output = proc.stdout + '\n' + proc.stderr
 
         devices = []
@@ -347,38 +354,44 @@ def scan_target(request):
         target_ip = body.get('target', '').strip()
         if not target_ip:
             return JsonResponse({'error': 'No target'}, status=400)
+        try:
+            target_ip = str(ipaddress.ip_address(target_ip))
+        except ValueError:
+            return JsonResponse({'error': 'Enter a valid IPv4 or IPv6 address.'}, status=400)
 
         is_host = target_ip in get_all_local_ips()
         scan_results = []
         os_detected = 'Unknown'
 
-        nmap_cmd = nmap_os_mac_args(target_ip, PORTS_STR)
-
+        if not find_nmap():
+            return JsonResponse({'error': 'Nmap was not found. Install Nmap or set NMAP_PATH.'}, status=503)
+        nmap_cmd = nmap_os_mac_args(target_ip, PORTS_STR, privileged=PRIVILEGE_STATUS['ok'])
         try:
-            result = subprocess.run(
-                nmap_cmd, shell=True, capture_output=True,
-                text=True, timeout=120)
-            output = result.stdout
+            result = subprocess.run(nmap_cmd, capture_output=True, text=True, timeout=120)
+        except subprocess.TimeoutExpired:
+            return JsonResponse({'error': 'Nmap scan timed out after 120 seconds.'}, status=504)
+        if result.returncode != 0:
+            detail = (result.stderr or result.stdout).strip()
+            return JsonResponse({'error': detail or 'Nmap could not complete the scan.'}, status=502)
+        output = result.stdout
 
-            for line in output.split('\n'):
-                if 'OS details:' in line:
-                    os_detected = line.split('OS details:')[-1].strip()
-                    break
+        for line in output.split('\n'):
+            if 'OS details:' in line:
+                os_detected = line.split('OS details:')[-1].strip()
+                break
 
-            port_re = re.compile(r'^(\d+)/tcp\s+open', re.MULTILINE)
-            for m in port_re.finditer(output):
-                port = int(m.group(1))
-                intel = THREAT_DB.get(
-                    port, {'service': 'Unknown', 'risk': 'INFO',
-                           'analysis': f'Service on port {port}.'})
-                scan_results.append({
-                    'port': port,
-                    'service': intel['service'],
-                    'risk': intel['risk'],
-                    'analysis': intel['analysis'],
-                })
-        except Exception:
-            pass
+        port_re = re.compile(r'^(\d+)/tcp\s+open', re.MULTILINE)
+        for m in port_re.finditer(output):
+            port = int(m.group(1))
+            intel = THREAT_DB.get(
+                port, {'service': 'Unknown', 'risk': 'INFO',
+                       'analysis': f'Service on port {port}.'})
+            scan_results.append({
+                'port': port,
+                'service': intel['service'],
+                'risk': intel['risk'],
+                'analysis': intel['analysis'],
+            })
 
         ai_explanations = []
         for r in scan_results:
